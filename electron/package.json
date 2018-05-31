@@ -1,0 +1,12 @@
+{
+  "name": "electron-client",
+  "version": "0.0.0",
+  "description": "electron application to interface with private ethereum blockchain",
+  "main": "main.js",
+  "scripts": {
+    "start": 'electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
