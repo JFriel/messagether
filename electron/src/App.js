@@ -41,13 +41,18 @@ class App extends Component {
         let block = this.getBlock(i);
 	if (block.transactions.length > 0){
 	    block.transactions.map(t => {
-	        messages[block.number] = {'from':t.from,'input':Web3Utils.hexToAscii(t.input)};
+	        messages[block.number] = {'from':t.from,'to':t.to, 'timestamp':block.timestamp,'input':Web3Utils.hexToAscii(t.input)};
 		return;
 	    })
 	}
       }
       console.log(messages);
       this.setState({lastBlock: latestBlockNum, messages: {...this.state.messages, ...messages}})
+  }
+
+  getFriendly(hash){
+    let name =  config.friendlyNames[hash]
+    return name;
   }
 
   render() {
@@ -60,7 +65,7 @@ class App extends Component {
 	    connected: {this.state.connected.toString()}<br/>
 	    latestBlock: {this.state.latestBlock.hash}
 
-	    {Object.keys(this.state.messages).map(message => {return (<div>{message}, {this.state.messages[message].input}, {this.state.messages[message].from}</div>)})}
+	    {Object.keys(this.state.messages).map(message => {return (<div>{message}, {this.state.messages[message].input}, {this.getFriendly(this.state.messages[message].from)}, {this.state.messages[message].timestamp}</div>)})}
 	</p>
 	    <button onClick={() => {this.connectToProvider()}}>Connect</button>
 	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
