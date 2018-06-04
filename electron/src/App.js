@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import './App.css';
 import { config} from './config.js';
 const Web3 = require('web3');
-
+const Web3Utils = require('web3-utils');
 class App extends Component {
  
   constructor(props) {
     super(props);
     this.web3 = null;
-    this.state = {'connected': false, latestBlock:{'hash': null}, messages:['t1','t2']}
+    this.state = {'connected': false, lastBlock: 0, latestBlock:{'hash': null}, messages:[{'from':'','value':'','number':''}]}
   }
 
   connectToProvider() {
@@ -25,31 +25,33 @@ class App extends Component {
   
 
 
-  getBlock(){
+  getBlock(num='latest'){
     // should return the latest block in the chain
-    const block = this.web3.eth.getBlock('latest', true);
+    const block = this.web3.eth.getBlock(num, true);
     //this.setState({'latestBlock': block});
     //console.log(block);
     return block;
   }
 
+
   getMessages(){
-    if(this.web3 != null){
-    let block = this.getBlock()
-    if (block != this.state.latestBlock){
-      this.setState({'latestBlock': block});
-      console.log(block);
-      if (block.transactions.length !== 0) {
-        block.transactions.map(t => {
-	  console.log(t);
-	  console.log(this.web3.utils.hexToAscii(t.input));
-          //this.setState({'messages': this.state.messages.append(t.
-	});
+      let latestBlockNum = this.getBlock().number;
+      let messages = {}
+      for (let i = this.state.lastBlock + 1; i <= latestBlockNum;i++){
+        let block = this.getBlock(i);
+	if (block.transactions.length > 0){
+	    block.transactions.map(t => {
+	        messages[block.number] = {'from':t.from,'input':Web3Utils.hexToAscii(t.input)};
+		return;
+	    })
+	}
       }
-    }}
+      console.log(messages);
+      this.setState({lastBlock: latestBlockNum, messages: {...this.state.messages, ...messages}})
   }
 
   render() {
+    //this.getMessages();
     return (
       <div className="App">
         <p>
@@ -58,7 +60,7 @@ class App extends Component {
 	    connected: {this.state.connected.toString()}<br/>
 	    latestBlock: {this.state.latestBlock.hash}
 
-	    {this.state.messages.map(message => {return (<div>{message}</div>)})}
+	    {Object.keys(this.state.messages).map(message => {return (<div>{message}, {this.state.messages[message].input}, {this.state.messages[message].from}</div>)})}
 	</p>
 	    <button onClick={() => {this.connectToProvider()}}>Connect</button>
 	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
