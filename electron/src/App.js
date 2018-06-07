@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import { config} from './config.js';
+import MessageInput from './components/messageInput';
+
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils');
 class App extends Component {
@@ -46,8 +48,23 @@ class App extends Component {
 	    })
 	}
       }
-      console.log(messages);
+      //console.log(messages);
       this.setState({lastBlock: latestBlockNum, messages: {...this.state.messages, ...messages}})
+  }
+
+  unlockAccount(hash,pass){
+    this.web3.personal.unlockAccount(hash,pass,200);
+    const transactionData = {
+      'from': '0x49a344653d1791018b1e38714c53b76167e85553',
+      'to': '0x2d416f8aaec76d3cea301e2e1df215b582121e9b',
+      'value': this.web3.toWei('2','ether'),
+      'gas': 200000,
+      'data': this.web3.toHex('I made a thing!')
+    };
+    this.web3.eth.sendTransaction(transactionData, function(err,transactionHash){
+      if(!err) console.log(transactionHash);
+      if(err) console.log(err);
+    });
   }
 
   getFriendly(hash){
@@ -56,7 +73,6 @@ class App extends Component {
   }
 
   render() {
-    //this.getMessages();
     return (
       <div className="App">
         <p>
@@ -69,7 +85,9 @@ class App extends Component {
 	</p>
 	    <button onClick={() => {this.connectToProvider()}}>Connect</button>
 	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
-      </div>
+	    <button onClick={() => {this.unlockAccount(Object.keys(config.friendlyNames)[0], 'testpassword')}}>Unlock Account</button>
+            <MessageInput sendMessage={()=>{}} web3={this.web3}/>
+	</div>
     );
   }
 }
