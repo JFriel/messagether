@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { config} from './config.js';
 import MessageInput from './components/messageInput';
-
+import ChatLogs from './components/chatLogs';
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils');
 class App extends Component {
@@ -10,7 +10,10 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.web3 = null;
-    this.state = {'connected': false, lastBlock: 0, latestBlock:{'hash': null}, messages:[{'from':'','value':'','number':''}]}
+    this.sendMessage = this.sendMessage.bind(this);
+    this.getRecipient = this.getRecipient.bind(this);
+    this.unlockAccount = this.unlockAccount.bind(this);
+    this.state = {'connected': false, lastBlock: 0, latestBlock:{'hash': null}, messages:{}}
   }
 
   connectToProvider() {
@@ -53,18 +56,14 @@ class App extends Component {
   }
 
   unlockAccount(hash,pass){
-    this.web3.personal.unlockAccount(hash,pass,200);
-    const transactionData = {
-      'from': '0x49a344653d1791018b1e38714c53b76167e85553',
-      'to': '0x2d416f8aaec76d3cea301e2e1df215b582121e9b',
-      'value': this.web3.toWei('2','ether'),
-      'gas': 200000,
-      'data': this.web3.toHex('I made a thing!')
-    };
-    this.web3.eth.sendTransaction(transactionData, function(err,transactionHash){
-      if(!err) console.log(transactionHash);
-      if(err) console.log(err);
-    });
+    try {
+	    this.web3.eth.defaultAccount = hash;
+	    this.web3.personal.unlockAccount(hash,pass,200);
+    } catch (err) {
+	    console.log(err);
+            //thow err;
+    }
+    return new Promise(function(res,rej){res(true)})
   }
 
   getFriendly(hash){
@@ -72,7 +71,33 @@ class App extends Component {
     return name;
   }
 
+  getRecipient(){
+    //TODO make a round robin
+    return config.recipients[0]
+  }
+
+  sendMessage(message){
+    console.log(message);
+    this.unlockAccount(config.accountID, config.password).then((res) => {
+      const transactionData = {
+        'from': config.account,
+        'to': this.getRecipient(),
+        'value': this.web3.toWei('2','ether'),
+        'gas': 200000,
+        'data': this.web3.toHex(message)
+      };
+      this.web3.eth.sendTransaction(transactionData, function(err,transactionHash){
+        if(!err) console.log(transactionHash);
+        if(err) {
+	      console.log(err);
+	      //throw err;
+        }
+      });
+    });
+  }
+
   render() {
+    let messages = (Object.keys(this.state.messages).length > 0) ?  (<ChatLogs messages={this.state.messages} />) : null;
     return (
       <div className="App">
         <p>
@@ -81,13 +106,13 @@ class App extends Component {
 	    connected: {this.state.connected.toString()}<br/>
 	    latestBlock: {this.state.latestBlock.hash}
 
-	    {Object.keys(this.state.messages).map(message => {return (<div>{message}, {this.state.messages[message].input}, {this.getFriendly(this.state.messages[message].from)}, {this.state.messages[message].timestamp}</div>)})}
 	</p>
 	    <button onClick={() => {this.connectToProvider()}}>Connect</button>
 	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
 	    <button onClick={() => {this.unlockAccount(Object.keys(config.friendlyNames)[0], 'testpassword')}}>Unlock Account</button>
-            <MessageInput sendMessage={()=>{}} web3={this.web3}/>
-	</div>
+            <MessageInput sendMessage={this.sendMessage} />
+	    {messages}
+	 </div>
     );
   }
 }

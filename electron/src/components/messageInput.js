@@ -4,7 +4,6 @@ class MessageInput extends Component {
 
     constructor(props) {
       super(props);
-      this.web3 = this.props.web3;
       this.state= {messageValue:''};
       this.handleChange = this.handleChange.bind(this);
     }
@@ -16,7 +15,7 @@ class MessageInput extends Component {
     render() {
       return (
         <div>
-           <input type='text' value={this.state.messageValue} onChange={this.handleChange}/><button onClick={this.props.sendMessage}>Send</button>
+           <input type='text' value={this.state.messageValue} onChange={this.handleChange}/><button onClick={() => this.props.sendMessage(this.state.messageValue)}>Send</button>
 	</div>
       )
     }
