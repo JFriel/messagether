@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Badge, Modal, ModalBody } from 'reactstrap';
 import './App.css';
 import { config} from './config.js';
 import MessageInput from './components/messageInput';
@@ -13,7 +14,13 @@ class App extends Component {
     this.sendMessage = this.sendMessage.bind(this);
     this.getRecipient = this.getRecipient.bind(this);
     this.unlockAccount = this.unlockAccount.bind(this);
-    this.state = {'connected': false, lastBlock: 0, latestBlock:{'hash': null}, messages:{}}
+    this.isConnected = this.isConnected.bind(this);
+    this.settingsModal = this.settingsModal.bind(this);
+    this.state = {connected: false, lastBlock: 0, latestBlock:{'hash': null}, messages:{}, openSettings: false}
+  }
+
+  componentWillMount(){
+    this.connectToProvider();
   }
 
   connectToProvider() {
@@ -95,23 +102,36 @@ class App extends Component {
       });
     });
   }
+  
+  isConnected(){
+    if(this.state.connected){
+	    return (<Badge color="success" pill>Connected</Badge>);
+    } else {
+	    return (<Badge color="danger" pill >Not Connected</Badge>);
+    }
+  }
+
+  settingsModal(){
+   return (
+     <Modal isOpen={this.state.openSettings}>
+	   <ModalBody>
+	     testing
+	   </ModalBody>
+     </Modal>
+   )
+  }
 
   render() {
     let messages = (Object.keys(this.state.messages).length > 0) ?  (<ChatLogs messages={this.state.messages} />) : null;
     return (
       <div className="App">
-        <p>
-	    provider: {config.provider}<br/> 
-	    account: {config.accountID} <br/>
-	    connected: {this.state.connected.toString()}<br/>
-	    latestBlock: {this.state.latestBlock.hash}
-
-	</p>
-	    <button onClick={() => {this.connectToProvider()}}>Connect</button>
+	    {this.isConnected()}
+	    {this.settingsModal()}
+	    <button onClick={() => {this.setState({'openSettings': true})}}>Settings</button>
 	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
 	    <button onClick={() => {this.unlockAccount(Object.keys(config.friendlyNames)[0], 'testpassword')}}>Unlock Account</button>
-            <MessageInput sendMessage={this.sendMessage} />
 	    {messages}
+            <MessageInput sendMessage={this.sendMessage} />
 	 </div>
     );
   }

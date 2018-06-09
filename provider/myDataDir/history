@@ -1,0 +1,142 @@
+eth.coinbase
+miner.start()
+eth.getBalance(eth.coinbase)
+miner.stop
+miner.stop()
+admin.nodeInfo.enode
+admin.peers
+admin.addPeers("enode://823f368da6797b1b001bf20139b6e3b3863969406c3d60bf4001f0f3901152aa69d5f136e1b4878ca8cf71bca76b800ea7c85d2d625471f9dfa7527501e586f2@212.103.228.169:30304")
+admin.addPeer("enode://823f368da6797b1b001bf20139b6e3b3863969406c3d60bf4001f0f3901152aa69d5f136e1b4878ca8cf71bca76b800ea7c85d2d625471f9dfa7527501e586f2@212.103.228.169:30304")
+admin.peers
+miner.start()
+miner.stop()
+admin.peers
+miner.stop()
+miner.start()
+admin.peers
+miner.stop()
+admin.peers
+miner.start()
+miner.stop()
+eth.accounts[0]
+eth.accounts
+eth.accounts[0]
+eth.accounts
+miner.start()
+eth.accounts
+miner.stop()
+eth.accounts
+eth.getBalance(eth.accounts[0])
+eth.getBalance(eth.accounts[1])
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(0.05, "ether"), gas:1})
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(0.05, "ether"), gas:100})
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(0.05, "ether"), gas:21000})
+eth.getBalance(eth.accounts[0])
+eth.getBalance(eth.accounts[1])
+miner.start()
+eth.getBalance(eth.accounts[1])
+web3.eth.getTransactionReceipt('0xfc30f8d27fb8553c90dc8c06d2255857b1fa50485a5fa207fc1541a4b8defbb2')
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(0.05, "ether"), data:web3.toHex('This is a test message')})
+web3.eth.getTransactionReceipt('0x107a16f216962759b301be0875accf85d6e19d41e655029026d7101910238eab')
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(0.05, "ether"), data:web3.toHex('This is a test message')})
+web3.eth.getTransactionReceipt('0x22c8d4ff832b31aad504c91056803de3b13762aa4b4b98a9f452643bae2ab334')
+web3.eth.getTransaction('0x22c8d4ff832b31aad504c91056803de3b13762aa4b4b98a9f452643bae2ab334')
+miner.stop()
+eth.balance(eth.accounts[0])
+eth.ballance(eth.accounts[0])
+eth.getBalance(eth.accounts[0])
+eth.getBalance(eth.accounts[1])
+eth.getBlock(1, true)
+eth.getBlock(2, true)
+eth.getBlock(20, true)
+eth.getTransactionReceipt
+eth.getTransactionReceipt()
+eth.getTransactionReceipt(1)
+eth.getTransactionsByAccount(eth.accounts[0])
+getTransactionsByAccount(eth.accounts[0])
+function getTransactionsByAccount(myaccount, startBlockNumber, endBlockNumber) {
+  if (endBlockNumber == null) {
+    endBlockNumber = eth.blockNumber;
+    console.log("Using endBlockNumber: " + endBlockNumber);
+  }
+  if (startBlockNumber == null) {
+    startBlockNumber = endBlockNumber - 1000;
+    console.log("Using startBlockNumber: " + startBlockNumber);
+  }
+  console.log("Searching for transactions to/from account \"" + myaccount + "\" within blocks "  + startBlockNumber + " and " + endBlockNumber);
+  for (var i = startBlockNumber; i <= endBlockNumber; i++) {
+    if (i % 1000 == 0) {
+      console.log("Searching block " + i);
+    }
+    var block = eth.getBlock(i, true);
+    if (block != null && block.transactions != null) {
+      block.transactions.forEach( function(e) {
+        if (myaccount == "*" || myaccount == e.from || myaccount == e.to) {
+          console.log("  tx hash          : " + e.hash + "\n"
+            + "   nonce           : " + e.nonce + "\n"
+            + "   blockHash       : " + e.blockHash + "\n"
+            + "   blockNumber     : " + e.blockNumber + "\n"
+            + "   transactionIndex: " + e.transactionIndex + "\n"
+            + "   from            : " + e.from + "\n" 
+            + "   to              : " + e.to + "\n"
+            + "   value           : " + e.value + "\n"
+            + "   time            : " + block.timestamp + " " + new Date(block.timestamp * 1000).toGMTString() + "\n"
+            + "   gasPrice        : " + e.gasPrice + "\n"
+            + "   gas             : " + e.gas + "\n"
+            + "   input           : " + e.input);
+        }
+      })
+    }
+  }
+}
+getTransactionsByAccount(eth.accounts[0])
+getTransactionsByAccount("*")
+eth.accounts
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553',to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value:web3.toWei(0.05, "ether"), gas:21000});
+puiblic.unlock
+public.unlock
+public.unlock(0x49a344653d1791018b1e38714c53b76167e85553)
+public.unlock('0x49a344653d1791018b1e38714c53b76167e85553')
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553',to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value:web3.toWei(0.05, "ether"), gas:21000});
+miner.start()
+miner.stop()
+eth.getTransactionReceipt('0xdaff70a0cddbd230e22d1d7cd9d628742ca033f67f63a83662aab51899eaa0bd')
+miner.start()
+eth.getBalance(eth.accounts[1])
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553',to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value:web3.toWei(0.05, "ether"), gas:21000});
+eth.getBalance(eth.accounts[1])
+miner.stop()
+eth.accounts
+eth.getBalance(eth.accounts[0])
+eth.getBalance(eth.accounts[1])
+eth.accounts
+eth.coinbase
+eth.sendTransaction({from:'0x49a344653d1791018b1e38714c53b76167e85553', to:'0x2d416f8aaec76d3cea301e2e1df215b582121e9b', value: web3.toWei(.034, 'ether'),gas:30000})
+miner.start()
+miner.stop()
+eth.getBlock(eth.blockNumber)
+eth.getBlock(eth.blockNumber, true)
+eth.getBlock('latest', true)
+miner.start()
+eth.getBlock('latest', true)
+miner.stop()
+eth.getBlock('0x64991ce0e92153f89d322a41e8c78deecef7544d352d488f7670b10ef6734d83', true)
+eth.getBlock(0, true)
+eth.getBlock(1, true)
+eth.getBlock(2, true)
+eth.getBlock(20000, true)
+eth.isConnected()
+eth.net.isListening()
+web3.eth.net.isListening()
+net.listening
+web3.net.listening
+web3.net.peerCount
+web3.port()
+web3.isConnected()
+web3.isConnected
+web3.isConnected()
+web3.eth.net
+web3.eth
+web3
+web3.eth.personal
+web3.personal
