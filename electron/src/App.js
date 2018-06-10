@@ -16,7 +16,7 @@ class App extends Component {
     this.unlockAccount = this.unlockAccount.bind(this);
     this.isConnected = this.isConnected.bind(this);
     this.settingsModal = this.settingsModal.bind(this);
-    this.state = {connected: false, lastBlock: 0, latestBlock:{'hash': null}, messages:{}, openSettings: false}
+    this.state = {connected: false, lastBlock: 350, latestBlock:{'hash': null}, messages:{}, openSettings: false, lastSentTo: 0}
   }
 
   componentWillMount(){
@@ -50,7 +50,8 @@ class App extends Component {
       let latestBlockNum = this.getBlock().number;
       let messages = {}
       for (let i = this.state.lastBlock + 1; i <= latestBlockNum;i++){
-        let block = this.getBlock(i);
+        console.log('mining block: ', i);
+	let block = this.getBlock(i);
 	if (block.transactions.length > 0){
 	    block.transactions.map(t => {
 	        messages[block.number] = {'from':t.from,'to':t.to, 'timestamp':block.timestamp,'input':Web3Utils.hexToAscii(t.input)};
@@ -79,8 +80,12 @@ class App extends Component {
   }
 
   getRecipient(){
-    //TODO make a round robin
-    return config.recipients[0]
+    // Round robin
+    const numberOfAccounts = Object.keys(config.recipients).length;
+    let newRecipient = this.state.lastSentTo + 1;
+    if (newRecipient > numberOfAccounts) {newRecipient = 0};
+    this.setState({lastSentTo: newRecipient});
+    return newRecipient;
   }
 
   sendMessage(message){
