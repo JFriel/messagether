@@ -6,11 +6,13 @@ import MessageInput from './components/messageInput';
 import ChatLogs from './components/chatLogs';
 const Web3 = require('web3');
 const Web3Utils = require('web3-utils');
+const web3Admin = require('web3Admin');
 class App extends Component {
  
   constructor(props) {
     super(props);
     this.web3 = null;
+    this.web3Admin = null;
     this.sendMessage = this.sendMessage.bind(this);
     this.getRecipient = this.getRecipient.bind(this);
     this.unlockAccount = this.unlockAccount.bind(this);
@@ -27,7 +29,8 @@ class App extends Component {
     const provider = config.provider;
     try {
 	let web3 = new Web3(new Web3.providers.HttpProvider(provider));
-        this.web3 = web3;  
+        this.web3 = web3;
+	this.web3Admin = web3Admin.extend(web3);
         web3.net.listening ? this.setState({connected:true}) : this.setState({connected: false});
     } catch (err) {
         console.log(err);
