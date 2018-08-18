@@ -11,6 +11,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.web3 = null;
+    this.getBlock = this.getBlock.bind(this);  
     this.sendMessage = this.sendMessage.bind(this);
     this.getRecipient = this.getRecipient.bind(this);
     this.unlockAccount = this.unlockAccount.bind(this);
@@ -28,49 +29,58 @@ class App extends Component {
     try {
 	let web3 = new Web3(new Web3.providers.HttpProvider(provider));
         this.web3 = web3;  
-        web3.net.listening ? this.setState({connected:true}) : this.setState({connected: false});
+        web3.eth.net.isListening().then(res => {
+          res ? this.setState({connected: true}) : this.setState({connected: false});
+        });
     } catch (err) {
         console.log(err);
 	this.setState({connected: false});
     }
   }
   
-
-
   getBlock(num='latest'){
     // should return the latest block in the chain
-    const block = this.web3.eth.getBlock(num, true);
-    //this.setState({'latestBlock': block});
-    //console.log(block);
-    return block;
+    this.web3.eth.getBlock(num, true).then(
+  	function(block){return block}
+    );
   }
 
 
   getMessages(){
-      let latestBlockNum = this.getBlock().number;
-      let messages = {}
-      for (let i = this.state.lastBlock + 1; i <= latestBlockNum;i++){
-        console.log('mining block: ', i);
-	let block = this.getBlock(i);
-	if (block.transactions.length > 0){
-	    block.transactions.map(t => {
-	        messages[block.number] = {'from':t.from,'to':t.to, 'timestamp':block.timestamp,'input':Web3Utils.hexToAscii(t.input)};
-		return;
-	    })
-	}
-      }
-      //console.log(messages);
-      this.setState({lastBlock: latestBlockNum, messages: {...this.state.messages, ...messages}})
+      console.log('getting messages');
+      this.web3.eth.getBlock('latest',true).then( function(latestBlock){
+        console.log(latestBlock.number);
+        let messages = {}
+        for (let i = this.state.lastBlock + 1; i <= latestBlock.number;i++){
+          console.log('mining block: ', i);
+            this.web3.eth.getBlock(i,true).then(function(currentBlock){
+              if (currentBlock.transactions.length > 0){
+	        currentBlock.transactions.map(t => {
+	          messages[currentBlock.number] = {
+			'from':t.from,
+			'to':t.to,
+			'timestamp':currentBlock.timestamp,
+			'input':Web3Utils.hexToAscii(t.input)
+		  };
+                  return;
+                });
+	      }
+	    }.bind(this))
+        }
+	  console.log('finished getting messages', messages);
+       this.setState({lastBlock: latestBlock.number, messages: {...this.state.messages, ...messages}});
+      }.bind(this));
   }
 
   unlockAccount(hash,pass){
     try {
 	    this.web3.eth.defaultAccount = hash;
-	    this.web3.personal.unlockAccount(hash,pass,200);
+	    this.web3.eth.personal.unlockAccount(hash,pass,200);
     } catch (err) {
 	    console.log(err);
             //thow err;
     }
+    console.log('Account Unlocked');
     return new Promise(function(res,rej){res(true)})
   }
 
@@ -89,14 +99,13 @@ class App extends Component {
   }
 
   sendMessage(message){
-    console.log(message);
     this.unlockAccount(config.accountID, config.password).then((res) => {
       const transactionData = {
         'from': config.account,
-        'to': this.getRecipient(),
-        'value': this.web3.toWei('2','ether'),
+        'to': this.web3.eth.accounts[this.getRecipient()],
+        'value': this.web3.utils.toWei('2','ether'),
         'gas': 200000,
-        'data': this.web3.toHex(message)
+        'data': this.web3.utils.toHex(message)
       };
       this.web3.eth.sendTransaction(transactionData, function(err,transactionHash){
         if(!err) console.log(transactionHash);
@@ -133,7 +142,7 @@ class App extends Component {
 	    {this.isConnected()}
 	    {this.settingsModal()}
 	    <button onClick={() => {this.setState({'openSettings': true})}}>Settings</button>
-	    <button onClick={() => {setInterval(()=>{this.getMessages()}, 3000);}}>get Messages</button>
+	    <button onClick={() => {this.getMessages()}}>get Messages</button>
 	    <button onClick={() => {this.unlockAccount(Object.keys(config.friendlyNames)[0], 'testpassword')}}>Unlock Account</button>
 	    {messages}
             <MessageInput sendMessage={this.sendMessage} />
